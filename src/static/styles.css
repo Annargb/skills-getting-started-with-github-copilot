@@ -63,6 +63,8 @@ section h3 {
   border: 1px solid #ddd;
   border-radius: 5px;
   background-color: #f9f9f9;
+  position: relative;
+  overflow: hidden;
 }
 
 .activity-card h4 {
@@ -72,6 +74,45 @@ section h3 {
 
 .activity-card p {
   margin-bottom: 8px;
+}
+
+.participants-section {
+  margin-top: 10px;
+}
+
+.participants-list {
+  list-style-type: none;
+  margin-left: 0;
+  padding-left: 0;
+  margin-top: 5px;
+  margin-bottom: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+/* Стили для элемента участника и иконки удаления */
+.participant-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #f1f1f1;
+  border-radius: 3px;
+  padding: 2px 8px;
+}
+.delete-icon {
+  color: #c62828;
+  cursor: pointer;
+  font-size: 1.1em;
+  margin-left: 4px;
+  transition: color 0.2s;
+}
+.delete-icon:hover {
+  color: #a31515;
+}
+}
+
+.no-participants {
+  color: #888;
+  font-style: italic;
 }
 
 .form-group {
@@ -88,8 +129,6 @@ section h3 {
 .form-group select {
   width: 100%;
   padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
   font-size: 16px;
 }
 
