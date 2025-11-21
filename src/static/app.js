@@ -20,25 +20,30 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const spotsLeft = details.max_participants - details.participants.length;
 
-        // Формируем список участников
-        let participantsHTML = "";
-        if (details.participants.length > 0) {
-          participantsHTML = `
-            <div class="participants-section">
-              <strong>Participants:</strong>
-              <ul class="participants-list">
-                ${details.participants.map(email => `<li>${email}</li>`).join("")}
-              </ul>
-            </div>
-          `;
-        } else {
-          participantsHTML = `
-            <div class="participants-section">
-              <strong>Participants:</strong>
-              <span class="no-participants">No participants yet</span>
-            </div>
-          `;
-        }
+            // Формируем список участников с иконкой удаления
+            let participantsHTML = "";
+            if (details.participants.length > 0) {
+              participantsHTML = `
+                <div class="participants-section">
+                  <strong>Participants:</strong>
+                  <ul class="participants-list">
+                    ${details.participants.map(email => `
+                      <li class="participant-item">
+                        <span class="participant-email">${email}</span>
+                        <span class="delete-icon" title="Unregister" data-activity="${name}" data-email="${email}">&#128465;</span>
+                      </li>
+                    `).join("")}
+                  </ul>
+                </div>
+              `;
+            } else {
+              participantsHTML = `
+                <div class="participants-section">
+                  <strong>Participants:</strong>
+                  <span class="no-participants">No participants yet</span>
+                </div>
+              `;
+            }
 
         activityCard.innerHTML = `
           <h4>${name}</h4>
@@ -60,6 +65,32 @@ document.addEventListener("DOMContentLoaded", () => {
       activitiesList.innerHTML = "<p>Failed to load activities. Please try again later.</p>";
       console.error("Error fetching activities:", error);
     }
+        // Добавляем обработчик для иконок удаления
+        document.querySelectorAll('.delete-icon').forEach(icon => {
+          icon.addEventListener('click', async (e) => {
+            const activity = icon.getAttribute('data-activity');
+            const email = icon.getAttribute('data-email');
+            if (confirm(`Unregister ${email} from ${activity}?`)) {
+              try {
+                const response = await fetch(`/activities/${encodeURIComponent(activity)}/unregister?email=${encodeURIComponent(email)}`, {
+                  method: 'DELETE',
+                });
+                if (response.ok) {
+                  fetchActivities();
+                } else {
+                  let errorMsg = 'Failed to unregister participant.';
+                  try {
+                    const result = await response.json();
+                    if (result.detail) errorMsg += '\n' + result.detail;
+                  } catch {}
+                  alert(errorMsg);
+                }
+              } catch (err) {
+                alert('Error occurred while unregistering.');
+              }
+            }
+          });
+        });
   }
 
   // Handle form submission
@@ -83,6 +114,7 @@ document.addEventListener("DOMContentLoaded", () => {
         messageDiv.textContent = result.message;
         messageDiv.className = "success";
         signupForm.reset();
+        fetchActivities(); // обновить список активностей сразу
       } else {
         messageDiv.textContent = result.detail || "An error occurred";
         messageDiv.className = "error";
